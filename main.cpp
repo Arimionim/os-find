@@ -6,6 +6,11 @@
 #include <sstream>
 #include <unistd.h>
 #include <sys/stat.h>
+#include <cstdlib>
+#include <stdexcept>
+#include <string>
+
+
 
 int const NOT_DEFINED_INT = -1;
 std::string NOT_DEFINED_STRING = "";
@@ -23,52 +28,52 @@ std::string exec = NOT_DEFINED_STRING;
 
 void parseArgs(int arc, char *argv[]) {
     if (arc < 1) {
-        throw std::invalid_argument("anter arguments");
+        throw std::runtime_error("anter arguments");
     }
     rootPath = argv[0];
     for (int i = 1; i < arc - 1; i += 2) {
         if (strcmp(argv[i], "-inum") == 0) {
             if (inum != NOT_DEFINED_INT) {
-                throw std::invalid_argument("inum was given twice");
+                throw std::runtime_error("inum was given twice");
             }
             inum = std::stol(argv[i + 1]);
         } else if (strcmp(argv[i], "-name") == 0) {
             if (name != NOT_DEFINED_STRING) {
-                throw std::invalid_argument("name was given twice");
+                throw std::runtime_error("name was given twice");
             }
             name = argv[i + 1];
         } else if (strcmp(argv[i], "-size") == 0) {
             int val = std::stol(&argv[i + 1][1]);
             if (argv[i + 1][0] == '-') {
                 if (sizeL != NOT_DEFINED_INT) {
-                    throw std::invalid_argument("-size was given twice");
+                    throw std::runtime_error("-size was given twice");
                 }
                 sizeL = val;
             } else if (argv[i + 1][0] == '=') {
                 if (sizeE != NOT_DEFINED_INT) {
-                    throw std::invalid_argument("=size was given twice");
+                    throw std::runtime_error("=size was given twice");
                 }
                 sizeE = val;
             } else if (argv[i + 1][0] == '+') {
                 if (sizeG != NOT_DEFINED_INT) {
-                    throw std::invalid_argument("+size was given twice");
+                    throw std::runtime_error("+size was given twice");
                 }
                 sizeG = val;
             } else {
-                throw std::invalid_argument(argv[i + 1]);
+                throw std::runtime_error(argv[i + 1]);
             }
         } else if (strcmp(argv[i], "-nlinks") == 0) {
             if (nlinks != NOT_DEFINED_INT) {
-                throw std::invalid_argument("nlinks was given twice");
+                throw std::runtime_error("nlinks was given twice");
             }
             nlinks = std::stol(argv[i + 1]);
         } else if (strcmp(argv[i], "-exec") == 0) {
             if (exec != NOT_DEFINED_STRING) {
-                throw std::invalid_argument("exec was given twice");
+                throw std::runtime_error("exec was given twice");
             }
             exec = argv[i + 1];
         } else {
-            throw std::invalid_argument(argv[i]);
+            throw std::runtime_error(argv[i]);
         }
     }
 }
