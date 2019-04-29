@@ -27,11 +27,11 @@ std::string exec = NOT_DEFINED_STRING;
 
 
 void parseArgs(int arc, char *argv[]) {
-    if (arc < 1) {
-        throw std::runtime_error("anter arguments");
+    if (arc < 2) {
+        throw std::runtime_error("Enter arguments");
     }
-    rootPath = argv[0];
-    for (int i = 1; i < arc - 1; i += 2) {
+    rootPath = argv[1];
+    for (int i = 2; i < arc - 1; i += 2) {
         if (strcmp(argv[i], "-inum") == 0) {
             if (inum != NOT_DEFINED_INT) {
                 throw std::runtime_error("inum was given twice");
@@ -42,26 +42,27 @@ void parseArgs(int arc, char *argv[]) {
                 throw std::runtime_error("name was given twice");
             }
             name = argv[i + 1];
-        } else if (strcmp(argv[i], "-size") == 0) {
-            int val = std::stol(&argv[i + 1][1]);
-            if (argv[i + 1][0] == '-') {
+        } else if (strcmp(argv[i] + 1, "size") == 0) {
+            int val = std::stol(std::string(argv[i + 1]));
+            if (argv[i][0] == '-') {
                 if (sizeL != NOT_DEFINED_INT) {
                     throw std::runtime_error("-size was given twice");
                 }
                 sizeL = val;
-            } else if (argv[i + 1][0] == '=') {
+            } else if (argv[i][0] == '=') {
                 if (sizeE != NOT_DEFINED_INT) {
                     throw std::runtime_error("=size was given twice");
                 }
                 sizeE = val;
-            } else if (argv[i + 1][0] == '+') {
+            } else if (argv[i][0] == '+') {
                 if (sizeG != NOT_DEFINED_INT) {
                     throw std::runtime_error("+size was given twice");
                 }
                 sizeG = val;
             } else {
-                throw std::runtime_error(argv[i + 1]);
+                throw std::runtime_error("Unknown: " + std::string(argv[i]));
             }
+            i++;
         } else if (strcmp(argv[i], "-nlinks") == 0) {
             if (nlinks != NOT_DEFINED_INT) {
                 throw std::runtime_error("nlinks was given twice");
@@ -73,7 +74,7 @@ void parseArgs(int arc, char *argv[]) {
             }
             exec = argv[i + 1];
         } else {
-            throw std::runtime_error(argv[i]);
+            throw std::runtime_error("Unknown: " + std::string(argv[i]));
         }
     }
 }
@@ -111,6 +112,7 @@ void walk(std::string path, std::vector<std::string> &ans) {
     DIR *dir = opendir(path.data());
     dirent *cur;
     std::vector<std::string> toWalk;
+
     while ((cur = readdir(dir)) != nullptr) {
         struct stat file;
         int res = stat((path + '/' + cur->d_name).c_str(), &file);
@@ -118,7 +120,7 @@ void walk(std::string path, std::vector<std::string> &ans) {
             std::cout << "can't proceed: " + path + '/' + cur->d_name;
         }
         if (S_ISDIR(file.st_mode)){
-            if (cur->d_name != "." && cur->d_name != "..") {
+            if (std::strcmp(cur->d_name, ".") != 0 && std::strcmp(cur->d_name, "..") != 0) {
                 toWalk.push_back(path + '/' + cur->d_name);
             }
         }
@@ -128,6 +130,7 @@ void walk(std::string path, std::vector<std::string> &ans) {
             }
         }
     }
+
     closedir(dir);
 
     for (std::string & val: toWalk){
@@ -150,7 +153,7 @@ int main(int argc, char *argv[]) {
         }
     }
     catch (std::exception &e) {
-        std::cout << e.what() << std::endl;
+        std::cout << "Error: " << e.what() << std::endl;
     }
     return 0;
 }
