@@ -110,6 +110,9 @@ void execute(std::vector<std::string> const & val){
 
 void walk(std::string path, std::vector<std::string> &ans) {
     DIR *dir = opendir(path.data());
+    if (dir == nullptr){
+        return;
+    }
     dirent *cur;
     std::vector<std::string> toWalk;
 
@@ -143,6 +146,7 @@ int main(int argc, char *argv[]) {
         parseArgs(argc, argv);
         std::vector<std::string> ans;
         walk(rootPath, ans);
+
         if (exec != NOT_DEFINED_STRING){
             execute(ans);
         }
